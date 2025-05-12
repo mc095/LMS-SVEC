@@ -61,19 +61,7 @@ Want to try it out? Use these demo credentials:
 - **Video Streaming**: HLS (HTTP Live Streaming)
 - **Authentication**: Django Authentication System
 
-## Project Structure
-
-```
-├── backend/                # Admin and core functionality
-│   ├── models.py          # Database models
-│   ├── views.py           # Admin views
-│   └── templates/         # Admin templates
-├── frontend/              # Student-facing interface
-│   ├── templates/         # Frontend templates
-│   └── views.py          # Frontend views
-├── media/                 # Uploaded files
-│   └── courses/          # Course materials
-└── manage.py             # Django management script
+  
 ```
 
 ## Setting Up Development Environment
