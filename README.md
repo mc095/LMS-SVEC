@@ -2,6 +2,28 @@
 
 A modern Learning Management System (LMS) built for Sri Vasavi Engineering College to provide students with easy access to course materials and video lectures.
 
+## Demo Access
+Want to try it out? Use these demo credentials:
+- **Username**: 22A81A0599
+- **Password**: 123456781234
+
+## Screenshots
+
+### Login Page
+![Login Page](images/login.png)
+
+### Home Dashboard
+![Home Dashboard](images/home.png)
+
+### Profile View
+![Profile View](images/profile.png)
+
+### Admin Interface
+![Admin Interface](images/admin.png)
+
+### Video Upload
+![Video Upload Interface](images/video-upload.png)
+
 ## Core Features
 
 ### For Students
@@ -75,8 +97,5 @@ python manage.py migrate
 python manage.py runserver
 ```
 
-## License
-
-All rights reserved. Sri Vasavi Engineering College © 2024.
 
 Collaborations are Invited
