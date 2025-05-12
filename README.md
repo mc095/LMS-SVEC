@@ -61,8 +61,6 @@ Want to try it out? Use these demo credentials:
 - **Video Streaming**: HLS (HTTP Live Streaming)
 - **Authentication**: Django Authentication System
 
-  
-```
 
 ## Setting Up Development Environment
 
