@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LMS - Course Content</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <script src="https://vjs.zencdn.net/7.11.4/video.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <style>
+        body {
+            padding-top: 56px;
+        }
+        .sidebar {
+            height: 100vh;
+            position: fixed;
+            top: 56px;
+            left: 0;
+            width: 280px;
+            background-color: #f0f0f5;
+            border-right: 1px solid #ddd;
+            padding: 15px;
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+            z-index: 1000;
+            transform: translateX(0);
+        }
+        @media (max-width: 767.98px) {
+            .sidebar {
+                transform: translateX(-100%);
+                width: 100%;
+            }
+            .sidebar.active {
+                transform: translateX(0);
+            }
+        }
+        .sidebar h5 {
+            font-size: 18px;
+            padding: 10px 15px;
+            color: #004d40;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .list-group-item {
+            border: none;
+            padding: 10px 20px;
+            background-color: #ffffff;
+        }
+        .list-group-item a {
+            color: #004d40;
+            font-size: 16px;
+            text-decoration: none;
+        }
+        .list-group-item.active {
+            background-color: rgba(0, 77, 64, 0.2);
+            color: white;
+        }
+        .list-group-item:hover {
+            background-color: #e0f2f1;
+            cursor: pointer;
+        }
+        .content {
+            margin-left: 280px;
+            padding: 20px;
+            transition: margin-left 0.3s ease;
+        }
+        @media (max-width: 767.98px) {
+            .content {
+                margin-left: 0;
+                padding: 20px;
+            }
+        }
+        .video-controls {
+            margin-top: 15px;
+        }
+        .video-controls button {
+            background-color: #004d40;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        .video-controls button:hover {
+            background-color: #00796b;
+        }
+        .navbar-custom {
+            background-color: #004d40;
+        }
+        .navbar-custom .navbar-brand,
+        .navbar-custom .nav-link {
+            color: #ffffff;
+        }
+        .navbar-custom .nav-link:hover {
+            color: #b2dfdb;
+        }
+        .open-sidebar-btn {
+            display: none;
+            position: fixed;
+            top: 65px;
+            left: 15px;
+            background-color: #004d40;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            cursor: pointer;
+            z-index: 1100;
+        }
+        @media (max-width: 767.98px) {
+            .open-sidebar-btn {
+                display: block;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom fixed-top">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{% url 'home' %}">SVEC LMS</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'home' %}">Courses</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'profile' %}">Profile</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'logout_page' %}">Logout</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <h5>
+            {{ course.course_name }}
+            <span class="close-sidebar" id="closeSidebarBtn">&times;</span>
+        </h5>
+        <ul class="list-group list-group-flush" id="videoList">
+            {% for video in videos %}
+            <li class="list-group-item video-list-item" data-video-url="{{ '/media/'|add:video.hls_path }}"
+            data-video-id="{{ video.id }}">
+                <a href="#" class="video-link">{{ video.title }}</a>      
+            </li>
+            {% empty %}
+            <li class="list-group-item">No videos available for this course.</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <!-- Open Sidebar Button for small screens -->
+    <button id="openSidebarBtn" class="open-sidebar-btn"><<</button>
+
+    <!-- Main Content Area -->
+    <div class="content" id="mainContent">
+        <div class="course-header">
+            <div><br><br>
+                <h1 id="videoTitle">Select a Video from list</h1>
+                <br />
+            </div>
+        </div>
+
+        <!-- Video Player Section -->
+        <div class="video-player bg-light" style="height: 400px">
+            <video id="videoPlayer" width="100%" height="100%" controls controlsList="nodownload">
+                Your browser does not support the video tag.
+            </video>
+        </div>
+
+        <!-- Video Controls Section -->
+        <div class="video-controls">
+            <button id="prevVideoBtn">Previous Video</button>
+            <button id="nextVideoBtn">Next Video</button>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        let currentVideoIndex = -1;
+        const videoList = document.querySelectorAll(".video-list-item");
+        const videoPlayer = document.getElementById("videoPlayer");
+        const csrfToken = '{{ csrf_token }}'; // Django CSRF token
+        const hls = new Hls();
+
+        const sidebar = document.getElementById("sidebar");
+        const mainContent = document.getElementById("mainContent");
+        const openSidebarBtn = document.getElementById("openSidebarBtn");
+        const closeSidebarBtn = document.getElementById("closeSidebarBtn");
+
+	const navbarToggler = document.querySelector(".navbar-toggler");
+
+// Function to open the sidebar
+function openSidebar() {
+    sidebar.style.transform = "translateX(0)";
+    mainContent.style.marginLeft = "280px"; // Adjust based on sidebar width
+    openSidebarBtn.style.display = "none"; // Hide the open button when sidebar is visible
+}
+
+// Function to close the sidebar
+function closeSidebar() {
+    sidebar.style.transform = "translateX(-100%)";
+    mainContent.style.marginLeft = "0"; // Reset main content margin
+    openSidebarBtn.style.display = "block"; // Show the open button when sidebar is hidden
+}
+
+// Check viewport width and open sidebar if on mobile
+function checkViewport() {
+    if (window.innerWidth < 768) { // Mobile breakpoint
+        openSidebar(); // Open sidebar on mobile
+    }
+}
+
+// Initial check on page load
+document.addEventListener("DOMContentLoaded", checkViewport);
+
+// Handle navbar toggle event
+navbarToggler.addEventListener("click", function () {
+    if (this.classList.contains("collapsed")) {
+        openSidebarBtn.style.display = "block"; // Show button when navbar is collapsed
+    } else {
+        openSidebarBtn.style.display = "none"; // Hide button when navbar is expanded
+    }
+});
+
+// Add event listeners for close and open buttons
+closeSidebarBtn.addEventListener("click", closeSidebar);
+openSidebarBtn.addEventListener("click", openSidebar);
+
+
+        // Function to open the sidebar
+        function openSidebar() {
+            sidebar.style.transform = "translateX(0)";
+            mainContent.style.marginLeft = "280px";
+            openSidebarBtn.style.display = "none";
+        }
+
+        // Function to close the sidebar
+        function closeSidebar() {
+            sidebar.style.transform = "translateX(-100%)";
+            mainContent.style.marginLeft = "0";
+            openSidebarBtn.style.display = "block";
+        }
+
+        // Function to play video
+        function playVideo(videoUrl, index, title) {
+            const videoTitleDisplay = document.getElementById("videoTitle");
+
+            if (Hls.isSupported()) {
+                hls.loadSource(videoUrl);
+                hls.attachMedia(videoPlayer);
+                hls.on(Hls.Events.MANIFEST_PARSED, function () {
+                    videoPlayer.play();
+                });
+            } else if (videoPlayer.canPlayType('application/vnd.apple.mpegurl')) {
+                videoPlayer.src = videoUrl; // Fallback for Safari
+                videoPlayer.addEventListener('loadedmetadata', function () {
+                    videoPlayer.play();
+                });
+            }
+
+            videoTitleDisplay.innerText = title; // Update video title
+            currentVideoIndex = index; // Update the current video index
+            highlightCurrentVideo(); // Highlight the active video
+
+            // Close the sidebar when a video is selected
+            closeSidebar();
+        }
+
+        // Highlight current video
+        function highlightCurrentVideo() {
+            videoList.forEach((item, index) => {
+                item.classList.toggle("active", index === currentVideoIndex);
+            });
+        }
+
+        // Previous and Next Video Button Logic
+        document.getElementById("prevVideoBtn").addEventListener("click", () => {
+            if (currentVideoIndex > 0) {
+                currentVideoIndex--;
+                const prevVideo = videoList[currentVideoIndex];
+                const videoUrl = prevVideo.getAttribute("data-video-url");
+                const title = prevVideo.querySelector("a").innerText;
+                playVideo(videoUrl, currentVideoIndex, title);
+                updateVideoStats(prevVideo.getAttribute("data-video-id"));
+            }
+        });
+
+        document.getElementById("nextVideoBtn").addEventListener("click", () => {
+            if (currentVideoIndex < videoList.length - 1) {
+                currentVideoIndex++;
+                const nextVideo = videoList[currentVideoIndex];
+                const videoUrl = nextVideo.getAttribute("data-video-url");
+                const title = nextVideo.querySelector("a").innerText;
+                playVideo(videoUrl, currentVideoIndex, title);
+                updateVideoStats(nextVideo.getAttribute("data-video-id"));
+            }
+        });
+
+        // Event listeners for video items
+        videoList.forEach((item, index) => {
+            item.addEventListener("click", function (event) {
+                event.preventDefault();
+                const videoUrl = this.getAttribute("data-video-url");
+                const title = this.querySelector("a").innerText;
+                playVideo(videoUrl, index, title);
+                updateVideoStats(this.getAttribute("data-video-id"));
+            });
+        });
+
+        function updateVideoStats(videoId) {
+            fetch(`/videos/${videoId}/`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById("videoLikes").innerText = `${data.likes} Likes`;
+                    document.getElementById("videoViews").innerText = `${data.views} Views`;
+                });
+        }
+
+	function updateViewCount(videoId) {
+    fetch(`/videos/${videoId}/update-views/`, {
+        method: 'POST', // Ensure your backend can handle POST requests
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken // Include CSRF token if using Django
+        },
+        body: JSON.stringify({}) // Send an empty body or any required data
+    })
+    .then(response => {
+        if (response.ok) {
+            console.log('View count updated successfully.');
+        } else {
+            console.error('Failed to update view count.');
+        }
+    })
+    .catch(error => console.error('Error updating view count:', error));
+}
+
+        // Open and close sidebar buttons
+        closeSidebarBtn.addEventListener("click", closeSidebar);
+        openSidebarBtn.addEventListener("click", openSidebar);
+    </script>
+
+</body>
+</html>

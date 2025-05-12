@@ -1,0 +1,17 @@
+{% extends "admin/change_list.html" %}
+{% load i18n admin_urls %}
+
+{% block object-tools %}
+    <div class="object-tools">
+        {% block object-tools-items %}
+            {% if has_add_permission %}
+                <a href="{% url 'admin:custom-view' %}" class="addlink" style="margin-right: 15px; background: #2ecc71;">
+                    {% blocktranslate %}Add Multiple Users{% endblocktranslate %}
+                </a>
+                <a href="{% url 'admin:backend_lms_users_add' %}" class="addlink">
+                    {% blocktranslate with cl.opts.verbose_name as name %}Add {{ name }}{% endblocktranslate %}
+                </a>
+            {% endif %}
+        {% endblock %}
+    </div>
+{% endblock %}
