@@ -30,7 +30,7 @@ Want to try it out? Use these demo credentials:
 - **Secure Authentication**: Login system using student roll number and password
 - **Course Access**: Browse and access available courses by department
 - **Video Learning**: 
-  - Stream course videos with HLS support
+  - Stream course videos with HLS support (adaptive bit rate streaming)
   - Video player with previous/next navigation
   - Track video views and likes
   - Responsive sidebar for video list
